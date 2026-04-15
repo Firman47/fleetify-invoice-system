@@ -1,0 +1,67 @@
+# =========================
+# ENV FILES
+# =========================
+**/.env
+**/.env.local
+**/.env.*.local
+
+# =========================
+# OS FILES
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# LOGS
+# =========================
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# BACKEND (GO)
+# =========================
+/apps/api/bin/
+/apps/api/tmp/
+/apps/api/vendor/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Go build output
+*.out
+
+# Air / live reload (kalau pakai)
+.air.toml
+
+# =========================
+# FRONTEND (NEXT.JS)
+# =========================
+/apps/web/node_modules/
+/apps/web/.next/
+/apps/web/out/
+/apps/web/dist/
+
+# build cache
+/apps/web/.vercel/
+/apps/web/.turbo/
+
+# =========================
+# DOCKER
+# =========================
+docker-compose.override.yml
+
+# =========================
+# IDE
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# DATABASE / MIGRATION CACHE (optional)
+# =========================
+*.sqlite
+*.db
