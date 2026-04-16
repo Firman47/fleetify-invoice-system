@@ -5,6 +5,7 @@ import (
 
 	"fleetify-invoice-api/internal/config"
 	"fleetify-invoice-api/internal/controllers"
+	"fleetify-invoice-api/internal/database"
 	"fleetify-invoice-api/internal/routes"
 	"fleetify-invoice-api/internal/services"
 
@@ -19,7 +20,7 @@ func main() {
 	})
 
 
-	db := config.ConnectDB()
+	db := database.ConnectDB()
 
 	authService := services.NewAuthService(db)
 	authController := controllers.NewAuthController(authService)
