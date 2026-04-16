@@ -21,13 +21,21 @@ func main() {
 
 
 	db := database.ConnectDB()
+	database.SeedItems(db)
 
 	authService := services.NewAuthService(db)
 	authController := controllers.NewAuthController(authService)
 
+	itemService := services.NewItemService(db)
+	itemController := controllers.NewItemController(itemService)
 
+	invoiceService := services.NewInvoiceService(db)
+	invoiceController := controllers.NewInvoiceController(invoiceService)
+
+	routes.SetupItemRoutes(app, itemController)
 	routes.SetupAuthRoutes(app, authController)
-	
+	routes.SetupInvoiceRoutes(app, invoiceController)
+
 	port := config.GetEnv("APP_PORT", "3000")
 	log.Fatal(app.Listen(":" + port))
 }
