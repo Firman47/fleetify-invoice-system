@@ -42,9 +42,11 @@ func JWTMiddleware(c fiber.Ctx) error {
 		})
 	}
 
-	c.Locals("user_id", claims["id"])
-	c.Locals("username", claims["username"])
-	c.Locals("role", claims["role"])
+	c.Locals("user", map[string]interface{}{
+		"id":       claims["id"],
+		"username": claims["username"],
+		"role":     claims["role"],
+	})
 
 	return c.Next()
 }
