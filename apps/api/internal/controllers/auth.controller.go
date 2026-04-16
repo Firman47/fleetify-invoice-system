@@ -27,20 +27,39 @@ func (h *AuthController) Login(c fiber.Ctx) error {
 
 
 	if err := c.Bind().Body(&body); err != nil {
-		return c.Status(400).JSON(fiber.Map{"message": "invalid request"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"message": "Invalid request body",
+		})
 	}
 
 	user, err := h.Service.Login(body.Username, body.Password)
 	if err != nil {
-		return c.Status(401).JSON(fiber.Map{"message": err.Error()})
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"success": false,
+			"message": "Username atau password salah",
+		})
 	}
 
 	token, err := utils.GenerateToken(user.ID, user.Username, user.Role)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"message": "failed to generate token"})
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"message": "Failed to generate token",
+		})
 	}
 
-	return c.JSON(fiber.Map{
-		"token": token,
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"success": true,
+		"message": "Login successful",
+		"data": fiber.Map{
+			"token": token,
+			"user": fiber.Map{
+				"id":       user.ID,
+				"username": user.Username,
+				"role":     user.Role,
+			},
+		},
 	})
+
 }
