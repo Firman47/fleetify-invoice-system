@@ -30,8 +30,10 @@ func ConnectDB() *gorm.DB {
 		log.Fatal("DB connection failed:", err)
 	}
 
-	// single place migration
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Item{})
+	db.AutoMigrate(&models.Invoice{})
+	db.AutoMigrate(&models.InvoiceDetail{})
 
 	return db
 }
