@@ -21,23 +21,10 @@ type AuthRequest struct {
 	Password string `json:"password"`
 }
 
-func (h *AuthController) Register(c fiber.Ctx) error {
-	var body AuthRequest
-
-	if err := c.Bind().Body(&body); err != nil {
-		return c.Status(400).JSON(fiber.Map{"message": "invalid request"})
-	}
-
-	err := h.Service.RegisterUser(body.Username, body.Password)
-	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"message": err.Error()})
-	}
-
-	return c.Status(201).JSON(fiber.Map{"message": "user created"})
-}
 
 func (h *AuthController) Login(c fiber.Ctx) error {
 	var body AuthRequest
+
 
 	if err := c.Bind().Body(&body); err != nil {
 		return c.Status(400).JSON(fiber.Map{"message": "invalid request"})
@@ -48,7 +35,7 @@ func (h *AuthController) Login(c fiber.Ctx) error {
 		return c.Status(401).JSON(fiber.Map{"message": err.Error()})
 	}
 
-	token, err := utils.GenerateToken(user.Username)
+	token, err := utils.GenerateToken(user.ID, user.Username, user.Role)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"message": "failed to generate token"})
 	}

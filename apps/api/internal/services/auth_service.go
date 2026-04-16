@@ -9,43 +9,34 @@ import (
 )
 
 type AuthService struct {
-	DB *gorm.DB
 }
 
 func NewAuthService(db *gorm.DB) *AuthService {
-	return &AuthService{DB: db}
+	return &AuthService{}
 }
 
-func (s *AuthService) RegisterUser(username, password string) error {
-	var existing models.User
-
-	if err := s.DB.Where("username = ?", username).First(&existing).Error; err == nil {
-		return errors.New("user already exists")
-	}
-
-	hashed, err := utils.HashPassword(password)
-	if err != nil {
-		return err
-	}
-
-	user := models.User{
-		Username: username,
-		Password: hashed,
-	}
-
-	return s.DB.Create(&user).Error
+var dummyUsers = []models.User{
+	{
+		ID: 1, Username: "admin",
+		 Password: "$2a$10$jd5.8N3L2CUPsQnTJrkV4e2OcO0.bV/CosoPkKNkMNf1R/T3r.q7u",  // password: "admin123"
+		 Role: "Admin",
+	},
+	{
+		ID: 2, 
+		Username: "kerani", 
+		Password: "$2a$10$3RID8kbDDBFJcy80w1pj8ur/5preuUBspoPuamOuhXmOmaN.ir9CG", // password: "kerani123"
+		Role: "Kerani",
+	},
 }
 
 func (s *AuthService) Login(username, password string) (models.User, error) {
-	var user models.User
-
-	if err := s.DB.Where("username = ?", username).First(&user).Error; err != nil {
-		return user, errors.New("user not found")
-	}
-
-	if !utils.CheckPassword(user.Password, password) {
-		return user, errors.New("wrong password")
-	}
-
-	return user, nil
+	for _, user := range dummyUsers{
+			if user.Username == username {
+				if !utils.CheckPassword(user.Password, password) {
+					return user, errors.New("wrong password")
+				}
+				return user, nil
+			}
+		}
+	return models.User{}, errors.New("user not found")
 }
