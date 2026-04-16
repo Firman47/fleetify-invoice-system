@@ -1,13 +1,12 @@
 package middlewares
 
 import (
+	"fleetify-invoice-api/internal/utils"
 	"strings"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
 )
-
-var jwtSecret = []byte("dev_secret_key")
 
 func JWTMiddleware(c fiber.Ctx) error {
 	authHeader := c.Get("Authorization")
@@ -18,11 +17,16 @@ func JWTMiddleware(c fiber.Ctx) error {
 		})
 	}
 
-	// format: Bearer token
-	tokenString := strings.Replace(authHeader, "Bearer ", "", 1)
+	tokenString := strings.Split(authHeader, " ")
 
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return jwtSecret, nil
+	if len(tokenString) != 2 {
+		return c.Status(401).JSON(fiber.Map{
+			"message": "invalid token format",
+		})
+	}
+
+	token, err := jwt.Parse(tokenString[1], func(token *jwt.Token) (interface{}, error) {
+		return utils.JWTSecret, nil
 	})
 
 	if err != nil || !token.Valid {
@@ -31,10 +35,16 @@ func JWTMiddleware(c fiber.Ctx) error {
 		})
 	}
 
-	claims := token.Claims.(jwt.MapClaims)
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return c.Status(401).JSON(fiber.Map{
+			"message": "invalid claims",
+		})
+	}
 
-	// simpan data user ke context
+	c.Locals("user_id", claims["id"])
 	c.Locals("username", claims["username"])
+	c.Locals("role", claims["role"])
 
 	return c.Next()
 }
