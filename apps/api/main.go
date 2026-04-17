@@ -43,6 +43,6 @@ func main() {
 	routes.SetupAuthRoutes(app, authController)
 	routes.SetupInvoiceRoutes(app, invoiceController)
 
-	port := config.GetEnv("APP_PORT", "3000")
+	port := config.GetEnv("APP_PORT", "8080")
 	log.Fatal(app.Listen(":" + port))
 }
