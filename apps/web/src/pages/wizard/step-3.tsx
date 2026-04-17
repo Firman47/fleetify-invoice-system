@@ -324,7 +324,13 @@ export default function WizardStep3() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => window.print()}
+                  onClick={() =>
+                    window.open(
+                      "/invoice-print",
+                      "_blank",
+                      "width=1200,height=800",
+                    )
+                  }
                   className="w-full sm:w-auto gap-2"
                 >
                   <Printer className="h-4 w-4" />
