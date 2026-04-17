@@ -1,5 +1,5 @@
 import { api } from "@/lib/api";
-import type { Item } from "@/types/api";
+import type { Item, ApiResponse } from "@/types/api";
 
 export const fetchItemsByCode = async ({
   code,
@@ -7,11 +7,17 @@ export const fetchItemsByCode = async ({
 }: {
   code: string;
   signal?: AbortSignal;
-}) => {
-  const response = await api.get("/api/items", {
+}): Promise<Item[]> => {
+  const response = await api.get<ApiResponse<Item[]>>("/items", {
     params: { code },
     signal,
   });
 
-  return response.data.data as Item[];
+  const res = response.data;
+
+  if (!res.success) {
+    throw new Error(res.message);
+  }
+
+  return res.data;
 };

@@ -3,37 +3,47 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import type { ClientData, InvoiceItemInput } from "@/types/api";
 
 const createDefaultItem = (): InvoiceItemInput => ({
-  id:
+  uuid:
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+  itemId: undefined,
   code: "",
   name: "",
   qty: 1,
   price: 0,
-  total: 0,
 });
 
-export type InvoiceStoreState = {
+const defaultClient: ClientData = {
+  sender: "",
+  senderAddress: "",
+  receiver: "",
+};
+
+type InvoiceStoreState = {
   client: ClientData;
   items: InvoiceItemInput[];
+  hasHydrated: boolean;
+
+  setHasHydrated: (state: boolean) => void;
   setClient: (client: ClientData) => void;
   setItems: (items: InvoiceItemInput[]) => void;
+
   updateItem: (id: string, data: Partial<InvoiceItemInput>) => void;
   addItem: () => void;
   removeItem: (id: string) => void;
+
   resetInvoice: () => void;
 };
 
 export const useInvoiceStore = create<InvoiceStoreState>()(
   persist(
     (set) => ({
-      client: {
-        sender: "",
-        senderAddress: "",
-        receiver: "",
-      },
-      items: [createDefaultItem()],
+      client: defaultClient,
+      items: [],
+      hasHydrated: false,
+
+      setHasHydrated: (state) => set({ hasHydrated: state }),
 
       setClient: (client) => set({ client }),
 
@@ -41,20 +51,14 @@ export const useInvoiceStore = create<InvoiceStoreState>()(
 
       updateItem: (id, data) =>
         set((state) => ({
-          items: state.items.map((item) => {
-            if (item.id !== id) return item;
-
-            const updated = {
-              ...item,
-              ...data,
-            };
-
-            if (data.qty !== undefined || data.price !== undefined) {
-              updated.total = updated.qty * updated.price;
-            }
-
-            return updated;
-          }),
+          items: state.items.map((item) =>
+            item.uuid === id
+              ? {
+                  ...item,
+                  ...data,
+                }
+              : item,
+          ),
         })),
 
       addItem: () =>
@@ -64,24 +68,22 @@ export const useInvoiceStore = create<InvoiceStoreState>()(
 
       removeItem: (id) =>
         set((state) => ({
-          items: state.items.filter((item) => item.id !== id),
+          items: state.items.filter((item) => item.uuid !== id),
         })),
 
       resetInvoice: () =>
         set({
-          client: {
-            sender: "",
-            senderAddress: "",
-            receiver: "",
-          },
-          items: [createDefaultItem()],
+          client: defaultClient,
+          items: [],
         }),
     }),
     {
       name: "invoice-storage",
-      storage: createJSONStorage(() =>
-        typeof window !== "undefined" ? window.localStorage : null,
-      ),
+      storage: createJSONStorage(() => localStorage),
+
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     },
   ),
 );

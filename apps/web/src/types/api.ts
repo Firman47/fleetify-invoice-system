@@ -36,26 +36,49 @@ export type ClientData = {
   receiver: string;
 };
 
-export type InvoiceItemInput = {
+export type Invoice = {
   id: string;
+  InvoiceNumber: string;
+  SenderName: string;
+  SenderAddress: string;
+  ReceiverName: string;
+  ReceiverAddress: string;
+  TotalAmount: number;
+  Details: Array<{
+    ID: number;
+    ItemID: number;
+    Quantity: number;
+    Price: number;
+    Subtotal: number;
+  }>;
+};
+
+export type InvoiceItemInput = {
+  uuid: string;
+  itemId?: number;
   code: string;
   name: string;
   qty: number;
   price: number;
-  total: number;
 };
 
 export type InvoicePayloadItem = {
-  code: string;
-  name: string;
-  qty: number;
-  price?: number;
-  total?: number;
+  item_id: number;
+  quantity: number;
+};
+
+export type InvoicePayloadItemAdmin = {
+  item_id: number;
+  quantity: number;
+  price: number;
+  total: number;
 };
 
 export type InvoicePayload = {
-  sender: string;
-  senderAddress: string;
+  sender_name: string;
+  sender_address: string;
+  receiver_name: string;
+  receiver_address?: string;
   receiver: string;
   items: InvoicePayloadItem[];
 };
