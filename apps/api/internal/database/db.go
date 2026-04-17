@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -25,15 +26,39 @@ func GetDSN() string {
 func ConnectDB() *gorm.DB {
 	dsn := GetDSN()
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		log.Fatal("DB connection failed:", err)
+	var db *gorm.DB
+	var err error
+
+	for i := 0; i < 10; i++ {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err == nil {
+			log.Println("DB connected")
+			break
+		}
+
+		log.Println("DB not ready, retrying... attempt:", i+1)
+		time.Sleep(2 * time.Second)
 	}
 
-	db.AutoMigrate(&models.User{})
-	db.AutoMigrate(&models.Item{})
-	db.AutoMigrate(&models.Invoice{})
-	db.AutoMigrate(&models.InvoiceDetail{})
+	if err != nil {
+		log.Fatal("DB connection failed after retries:", err)
+	}
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatal("failed to get db instance:", err)
+	}
+
+	if err := sqlDB.Ping(); err != nil {
+		log.Fatal("DB ping failed:", err)
+	}
+
+	db.AutoMigrate(
+		&models.User{},
+		&models.Item{},
+		&models.Invoice{},
+		&models.InvoiceDetail{},
+	)
 
 	return db
 }
