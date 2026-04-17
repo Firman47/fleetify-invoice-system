@@ -51,7 +51,6 @@ func (s *InvoiceService) CreateInvoice(req dto.InvoiceRequest, userID uint) (*mo
 			details = append(details, detail)
 		}
 
-		// 🔥 generate invoice number
 		invoiceNumber := fmt.Sprintf("INV-%d", time.Now().Unix())
 
 		invoice = models.Invoice{
@@ -64,12 +63,10 @@ func (s *InvoiceService) CreateInvoice(req dto.InvoiceRequest, userID uint) (*mo
 			CreatedBy:       userID,
 		}
 
-		// insert header
 		if err := tx.Create(&invoice).Error; err != nil {
 			return err
 		}
 
-		// insert details
 		for i := range details {
 			details[i].InvoiceID = invoice.ID
 			if err := tx.Create(&details[i]).Error; err != nil {
