@@ -9,6 +9,7 @@ export function middleware(req: NextRequest) {
 
   const isLoginPage = pathname === "/login";
   const isDashboard = pathname.startsWith("/dashboard");
+  const isWizard = pathname.startsWith("/wizard");
   const isRoot = pathname === "/";
 
   if (isRoot) {
@@ -19,7 +20,7 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }
 
-  if (!token && isDashboard) {
+  if (!token && (isDashboard || isWizard)) {
     return NextResponse.redirect(new URL("/login", req.url));
   }
 
@@ -27,5 +28,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/login", "/dashboard/:path*"],
+  matcher: ["/", "/login", "/dashboard/:path*", "/wizard/:path*"],
 };
