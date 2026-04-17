@@ -1,21 +1,34 @@
 # Fleetify Invoice System
 
-Technical Test - Junior Fullstack Engineer  
+Technical Test - Junior Fullstack Engineer
 Multi-Step Invoice / Resi Generator (Fleet & Logistics)
 
 ---
 
 ## Overview
 
-This project is a fullstack web application that simulates a logistics invoice generation system using a multi-step wizard.
+Fleetify Invoice System is a fullstack application for generating logistics invoices with a guided wizard flow.
+The app supports role-based data submission, dynamic item lookup, persistent invoice drafts, and safe backend validation.
 
-It includes:
+Key capabilities:
 
-- Authentication using JWT
-- Role-based payload transformation (Admin & Kerani)
-- Dynamic item search with debounce
-- Invoice generation with backend validation (Zero-Trust)
-- Dockerized full environment (Frontend, Backend, Database)
+- Multi-step wizard for client, item, and review flow
+- Role-based payload handling for Admin and Kerani
+- Dynamic item lookup with debounce and autocomplete
+- Client-side state persistence using Zustand
+- Backend validation with zero-trust pricing logic
+- Dockerized full stack environment with PostgreSQL
+
+---
+
+## Project Structure
+
+- `apps/web` - Next.js frontend
+- `apps/api` - Go backend with Fiber
+- `apps/api/internal` - backend controllers, services, models, and routes
+- `apps/web/src/pages/wizard` - wizard pages for step 1, 2, and 3
+- `apps/web/src/store` - Zustand stores for invoice and auth data
+- `apps/web/src/services` - API service calls
 
 ---
 
@@ -23,19 +36,20 @@ It includes:
 
 ### Frontend
 
-- Next.js 14 (Pages Router only)
+- Next.js 14 (Pages Router)
 - TypeScript (Strict Mode)
-- Zustand (State Management + Persist)
+- Zustand (state management + persistence)
 - React Query v5
 - Tailwind CSS
+- lucide-react icons
 
 ### Backend
 
 - Go (Golang)
-- Fiber Framework
+- Fiber framework
 - GORM ORM
 - PostgreSQL
-- JWT Authentication
+- JWT authentication
 
 ### Infrastructure
 
@@ -48,81 +62,135 @@ It includes:
 
 ### Authentication
 
-- Login using JWT
-- Token stored in cookies
-- Axios interceptor automatically attaches token to every request
+- JWT-based login
+- Token stored in HTTP cookies
+- Axios interceptor attaches token automatically to API requests
 
----
-
-### Multi-Step Wizard
+### Multi-Step Invoice Wizard
 
 #### Step 1: Client Data
 
-- Sender name
-- Sender address
-- Receiver name
+- Capture sender name
+- Capture sender address
+- Capture receiver name
 
-#### Step 2: Items
+#### Step 2: Item Selection
 
-- Dynamic table input
-- Item search with debounce (500ms)
-- Race condition handled using AbortController
+- Add / remove invoice items
+- Search item by code with debounce (500ms)
+- Autocomplete dropdown for item selection
+- Quantity adjustment per item
+- Role-based price and total display
 
-#### Step 3: Review & Invoice
+#### Step 3: Review & Submit
 
-- Summary of all data
-- Submit invoice
-- Print invoice (A4 layout)
-
----
-
-### Role-Based Logic
-
-There are two roles:
-
-- Admin
-- Kerani
-
-Rules:
-
-- Admin sends full payload (price + total included)
-- Kerani sends simplified payload (price & total removed from request)
+- Review client and item details
+- Display total invoice amount
+- Print invoice layout
+- Submit invoice to backend
 
 ---
 
-### Backend Rules (Important)
+## Role-Based Logic
 
-- Backend does NOT trust frontend price or total
-- All prices are recalculated from database (Zero-Trust)
-- Uses DB transaction (ACID):
-  - Insert invoice header
-  - Insert invoice details
-  - Rollback if any failure occurs
+The system supports two user roles:
 
----
-
-### Database Seeding (Zero Setup)
-
-When application starts:
-
-- Database is automatically migrated
-- Master item data is automatically seeded
-
-No manual SQL required.
+- **Admin**
+  - Full payload sent to backend
+  - Includes item price and total in review UI
+- **Kerani**
+  - Simplified payload sent to backend
+  - Backend still recalculates pricing amounts
 
 ---
 
-## How to Run (Zero Setup)
+## Backend Rules (Zero Trust)
 
-### Requirements
+The backend enforces strong validation and does not trust price data from the frontend.
+
+- Prices and totals are recalculated on the server using item master data
+- Invoice creation uses a DB transaction for atomic writes
+- If any insert fails, the transaction is rolled back
+
+---
+
+## Database and Seeding
+
+On startup, the backend automatically:
+
+- Migrates database schemas
+- Seeds master item data
+
+This means no manual SQL setup is required for demo use.
+
+---
+
+## Running the Application
+
+### Prerequisites
 
 - Docker
 - Docker Compose
 
----
-
-### Start Project
+### Start with Docker
 
 ```bash
 docker-compose up --build
 ```
+
+This command starts the frontend, backend, and PostgreSQL services.
+
+### Frontend Local Run
+
+If you prefer running only the frontend locally:
+
+```bash
+cd apps/web
+npm install
+npm run dev
+```
+
+### Backend Local Run
+
+If you prefer running only the backend locally:
+
+```bash
+cd apps/api
+go run main.go
+```
+
+---
+
+## Useful Commands
+
+- `docker-compose up --build` - Start all services
+- `docker-compose down` - Stop and remove containers
+- `cd apps/web && npm run dev` - Run frontend developer server
+- `cd apps/api && go run main.go` - Run backend locally
+
+---
+
+## Important Files
+
+- `apps/web/src/pages/wizard/step-1.tsx`
+- `apps/web/src/pages/wizard/step-2.tsx`
+- `apps/web/src/pages/wizard/step-3.tsx`
+- `apps/web/src/store/invoice.store.ts`
+- `apps/api/main.go`
+- `apps/api/internal/controllers`
+- `apps/api/internal/services`
+- `apps/api/internal/models`
+
+---
+
+## Notes
+
+- The frontend stores draft invoice data in local storage for persistence.
+- Item search uses debounce and abort controllers to reduce race conditions.
+- Backend uses JWT auth and verifies requests before invoice creation.
+
+---
+
+## License
+
+This repository is for technical assessment purposes.
