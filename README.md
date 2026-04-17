@@ -66,6 +66,17 @@ Key capabilities:
 - Token stored in HTTP cookies
 - Axios interceptor attaches token automatically to API requests
 
+#### Test Credentials
+
+For testing purposes, the following dummy accounts are available:
+
+| Username | Password  | Role   |
+| -------- | --------- | ------ |
+| admin    | admin123  | Admin  |
+| kerani   | kerani123 | Kerani |
+
+Use these credentials to log in to the application and test the different role-based features.
+
 ### Multi-Step Invoice Wizard
 
 #### Step 1: Client Data
