@@ -36,7 +36,7 @@ Key capabilities:
 
 ### Frontend
 
-- Next.js 14 (Pages Router)
+- Next.js 16 (Pages Router)
 - TypeScript (Strict Mode)
 - Zustand (state management + persistence)
 - React Query v5
